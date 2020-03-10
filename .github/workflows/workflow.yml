@@ -1,20 +1,21 @@
-name: Deploy
-
-on:
-  push:
-    branches:
-      - master
-
+name: Node Test e Deploy
+on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: akhileshns/heroku-deploy@v3.0.0 
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "pet-sao-joao" 
-          heroku_email: "renan.baldo@sou.unifeob.edu.br"
-          branch: "master" 
-          dontuseforce: false 
-          usedocker: false 
+    - uses: actions/checkout@v2
+    - name: Set up Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+    - name: Install Dependencies
+      run: npm install
+    - name: Check Tests
+      run: npm test
+    - name: Deploy to Heroku
+      env:
+        HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
+        HEROKU_APP_NAME: "pet-sao-joao"
+      if: github.ref == 'refs/heads/master' && job.status == 'success'
+      run: git push https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$HEROKU_APP_NAME.git origin/master:master
