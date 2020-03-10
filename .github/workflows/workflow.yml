@@ -14,11 +14,8 @@ jobs:
     - name: Check Tests
       run: npm test
     - name: Deploy to Heroku
-      uses: akhileshns/heroku-deploy@v3.0.0 
-      with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: "pet-sao-joao" 
-          heroku_email: "renan.baldo@sou.unifeob.edu.br"
-          branch: "master" 
-          dontuseforce: false 
-          usedocker: false 
+      env:
+        HEROKU_API_TOKEN: ${{ secrets.HEROKU_API_TOKEN }}
+        HEROKU_APP_NAME: "pet-sao-joao"
+      if: github.ref == 'refs/heads/master' && job.status == 'success'
+      run: git push https://heroku:$HEROKU_API_TOKEN@git.heroku.com/$HEROKU_APP_NAME.git origin/master:master
